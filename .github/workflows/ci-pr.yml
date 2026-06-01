@@ -1,0 +1,101 @@
+name: CI And PR
+
+on:
+  push:
+    branches-ignore:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  docker-healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Prepare CI Compose Override
+        shell: bash
+        run: |
+          cat > docker-compose.ci.yml <<'YAML'
+          services:
+            alloha-backend:
+              environment:
+                DB_URL: sqlite+aiosqlite:////app/var/work/ci.db
+                SECRET_KEY: ci-secret
+          YAML
+
+      - name: Build Containers
+        run: docker compose -f docker-compose.example.yml -f docker-compose.ci.yml build
+
+      - name: Start Containers
+        run: docker compose -f docker-compose.example.yml -f docker-compose.ci.yml up -d
+
+      - name: Check Health Endpoint
+        shell: bash
+        run: |
+          set -e
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:8090/health" >/dev/null; then
+              echo "Healthcheck passed"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Healthcheck failed"
+          docker compose -f docker-compose.example.yml -f docker-compose.ci.yml logs
+          exit 1
+
+      - name: Check Protected Endpoint With JWT
+        shell: bash
+        run: |
+          set -e
+          TOKEN="$(docker compose -f docker-compose.example.yml -f docker-compose.ci.yml exec -T alloha-backend \
+            uv run python -c "import os; from backend.utils.jwt import create_token; os.environ['SECRET_KEY']='ci-secret'; print(create_token('ci-user')[0])" | tail -n1)"
+          curl -fsS -H "Authorization: Bearer ${TOKEN}" "http://127.0.0.1:8090/queue/status" >/dev/null
+
+      - name: Show Logs On Failure
+        if: failure()
+        run: docker compose -f docker-compose.example.yml -f docker-compose.ci.yml logs
+
+      - name: Stop Containers
+        if: always()
+        run: docker compose -f docker-compose.example.yml -f docker-compose.ci.yml down -v
+
+  open-pr-to-master:
+    runs-on: ubuntu-latest
+    needs: docker-healthcheck
+    if: github.ref != 'refs/heads/master'
+    steps:
+      - name: Open Pull Request To master
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const head = context.ref.replace('refs/heads/', '');
+            const base = 'master';
+            const existing = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head: `${owner}:${head}`,
+              base,
+            });
+            if (existing.data.length > 0) {
+              core.info(`PR already exists: #${existing.data[0].number}`);
+              return;
+            }
+            const pr = await github.rest.pulls.create({
+              owner,
+              repo,
+              head,
+              base,
+              title: `CI: merge ${head} into ${base}`,
+              body: 'Automated PR after successful Docker build and healthcheck workflow.',
+            });
+            core.info(`Created PR #${pr.data.number}`);

@@ -1,0 +1,24 @@
+[project]
+name = "alloha-downloader"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiohttp>=3.13.0",
+    "aiomysql>=0.2.0",
+    "aiosqlite>=0.21.0",
+    "alembic>=1.18.4",
+    "bcrypt>=4.3.0",
+    "ffmpeg-python>=0.2.0",
+    "pyjwt>=2.10.1",
+    "python-dotenv>=1.2.1",
+    "pytz>=2025.2",
+    "pytest>=9.0.0",
+    "pyyaml>=6.0.3",
+    "sqlalchemy>=2.0.44",
+    "mpegdash>=0.4.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

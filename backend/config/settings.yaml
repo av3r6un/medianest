@@ -1,0 +1,41 @@
+NOT_SECURED_PATHS:
+  - /auth/login
+  - /auth/refresh
+  - /health
+
+APP_HOST: 0.0.0.0
+APP_PORT: 8090
+REQUEST_MAX_BYTES: 1048576
+
+WORK_DIR: var/work
+PLEX_MEDIA_ROOT: var/plex
+
+AUDIO_BITRATE: 160k
+QUALITY: 20
+PRESET: slow
+VIDEO_ENCODER: libx264
+DEFAULT_VIDEO_STREAM: 0:v:1
+DEFAULT_AUDIO_STREAM: 0:a:1
+DEFAULT_SUBTITLE_STREAM: "1:0"
+DEFAULT_REQUEST_HEADERS:
+  - "Accept: */*"
+  - "Accept-Language: ru,en;q=0.9"
+  - "Origin: https://fbr-lordfilms.ru"
+  - "Referer: https://fbr-lordfilms.ru/"
+  - "Sec-Fetch-Dest: empty"
+  - "Sec-Fetch-Mode: cors"
+  - "Sec-Fetch-Site: cross-site"
+  - "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 YaBrowser/26.4.0.0 Safari/537.36"
+  - "sec-ch-ua: \"Chromium\";v=\"146\", \"Not-A.Brand\";v=\"24\", \"YaBrowser\";v=\"26.4\", \"Yowser\";v=\"2.5\""
+  - "sec-ch-ua-mobile: ?0"
+  - "sec-ch-ua-platform: \"Windows\""
+
+MAX_CONCURRENT_JOBS: 1
+WORKER_ENABLED: false
+WORKER_POLL_INTERVAL: 5
+PROCESS_TERMINATE_TIMEOUT: 10
+FFMPEG_BINARY: ffmpeg
+FFPROBE_BINARY: ffprobe
+
+URL_ALLOWLIST: []
+URL_BLOCKLIST: []

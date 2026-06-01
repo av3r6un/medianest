@@ -1,0 +1,29 @@
+.git
+.github
+.codex
+.pytest_cache
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Local runtime and artifacts
+logs
+var
+app.db
+
+# Tests and local fixtures are not required in runtime image
+tests
+browser
+features
+manifest.dash
+from_mpd.json
+
+# Environment and editor files
+.env
+.env.*
+.python-version
+.vscode
+.idea
