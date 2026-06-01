@@ -79,6 +79,8 @@ jobs:
             const repo = context.repo.repo;
             const head = context.ref.replace('refs/heads/', '');
             const base = 'master';
+            let prNumber = null;
+            let prNodeId = null;
             const existing = await github.rest.pulls.list({
               owner,
               repo,
@@ -87,15 +89,32 @@ jobs:
               base,
             });
             if (existing.data.length > 0) {
-              core.info(`PR already exists: #${existing.data[0].number}`);
-              return;
+              prNumber = existing.data[0].number;
+              prNodeId = existing.data[0].node_id;
+              core.info(`PR already exists: #${prNumber}`);
+            } else {
+              const pr = await github.rest.pulls.create({
+                owner,
+                repo,
+                head,
+                base,
+                title: `CI: merge ${head} into ${base}`,
+                body: 'Automated PR after successful Docker build and healthcheck workflow.',
+              });
+              prNumber = pr.data.number;
+              prNodeId = pr.data.node_id;
+              core.info(`Created PR #${prNumber}`);
             }
-            const pr = await github.rest.pulls.create({
-              owner,
-              repo,
-              head,
-              base,
-              title: `CI: merge ${head} into ${base}`,
-              body: 'Automated PR after successful Docker build and healthcheck workflow.',
-            });
-            core.info(`Created PR #${pr.data.number}`);
+            try {
+              await github.graphql(
+                `mutation($pullRequestId: ID!) {
+                  enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: SQUASH }) {
+                    pullRequest { number autoMergeRequest { enabledAt } }
+                  }
+                }`,
+                { pullRequestId: prNodeId },
+              );
+              core.info(`Auto-merge enabled for PR #${prNumber}`);
+            } catch (e) {
+              core.warning(`Could not enable auto-merge for PR #${prNumber}: ${e.message}`);
+            }
