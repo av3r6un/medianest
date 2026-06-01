@@ -1,8 +1,7 @@
 services:
   alloha-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: av3rgun/medianest:latest
+    pull_policy: always
     container_name: alloha-backend
     ports:
       - "8090:8090"

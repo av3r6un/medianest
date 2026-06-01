@@ -26,7 +26,7 @@ jobs:
             alloha-backend:
               environment:
                 DB_URL: sqlite+aiosqlite:////app/var/work/ci.db
-                SECRET_KEY: ci-secret
+                SECRET_KEY: ci-secret-key-at-least-32-bytes-long
           YAML
 
       - name: Build Containers
@@ -55,7 +55,7 @@ jobs:
         run: |
           set -e
           TOKEN="$(docker compose -f docker-compose.example.yml -f docker-compose.ci.yml exec -T alloha-backend \
-            uv run python -c "import os; from backend.utils.jwt import create_token; os.environ['SECRET_KEY']='ci-secret'; print(create_token('ci-user')[0])" | tail -n1)"
+            uv run python -c "import os; from backend.utils.jwt import create_token; os.environ['SECRET_KEY']='ci-secret-key-at-least-32-bytes-long'; print(create_token('ci-user')[0])" | tail -n1)"
           curl -fsS -H "Authorization: Bearer ${TOKEN}" "http://127.0.0.1:8090/queue/status" >/dev/null
 
       - name: Show Logs On Failure
