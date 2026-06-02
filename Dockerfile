@@ -21,7 +21,8 @@ COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen --no-dev
 
 COPY . .
+RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 8090
 
-CMD ["python", "-m", "backend"]
+ENTRYPOINT ["/app/entrypoint.sh"]
