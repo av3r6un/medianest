@@ -880,7 +880,8 @@ Docker example:
 
 ```bash
 cp docker-compose.example.yml docker-compose.yml
-docker compose up --build -d
+docker compose --profile ops run --rm alloha-migrate
+docker compose up -d
 ```
 
 Set at least:
@@ -891,6 +892,7 @@ SECRET_KEY=change-this-secret
 ```
 
 When running in containers, mount persistent host paths for `WORK_DIR`, `PLEX_MEDIA_ROOT`, and logs.
+Run migrations before starting the backend container so normal app startup only launches the server.
 
 Log rotation example:
 
