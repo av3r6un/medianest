@@ -23,7 +23,19 @@ jobs:
         run: |
           cat > docker-compose.ci.yml <<'YAML'
           services:
+            alloha-migrate:
+              build:
+                args:
+                  INSTALL_FFMPEG: "0"
+              environment:
+                DB_URL: sqlite+aiosqlite:////app/var/work/ci.db
+                SECRET_KEY: ci-secret-key-at-least-32-bytes-long
+              volumes:
+                - ./var/work:/app/var/work
             alloha-backend:
+              build:
+                args:
+                  INSTALL_FFMPEG: "0"
               environment:
                 DB_URL: sqlite+aiosqlite:////app/var/work/ci.db
                 SECRET_KEY: ci-secret-key-at-least-32-bytes-long
