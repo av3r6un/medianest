@@ -1,7 +1,8 @@
 services:
   alloha-migrate:
-    image: av3rgun/medianest:latest
-    pull_policy: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       DB_URL: mysql+aiomysql://alloha:change-me@db:3306/alloha
       SECRET_KEY: change-this-secret
@@ -11,8 +12,9 @@ services:
     restart: "no"
 
   alloha-backend:
-    image: av3rgun/medianest:latest
-    pull_policy: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: alloha-backend
     depends_on:
       alloha-migrate:
