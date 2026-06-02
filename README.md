@@ -305,7 +305,6 @@ headers:
 request_body:
   source_url: string, required, http or https DASH/source URL
   subtitles_url: string, required, http or https subtitles URL
-  original_page_url: string, optional, http or https page URL
   output_title: string, required
   title: string, required
   season: integer, required, positive
@@ -326,7 +325,6 @@ response_body:
     uid: string
     source_url: string
     subtitles_url: string|null
-    original_page_url: string|null
     source_user_agent: string|null
     output_title: string
     title: string
@@ -377,7 +375,6 @@ Example response:
     "uid": "Ab8XsAhPkzky5Gys",
     "source_url": "https://example.com/manifest.mpd",
     "subtitles_url": "https://example.com/subtitles.vtt",
-    "original_page_url": null,
     "source_user_agent": "MyClient/1.0",
     "output_title": "Example Show S01E02",
     "title": "Example Show",
@@ -444,7 +441,6 @@ headers:
 request_body:
   source_url: string, required, http or https DASH/source URL
   subtitles_url: string, required, http or https subtitles URL
-  original_page_url: string, optional, http or https page URL
   output_title: string, required
   title: string, required
   season: integer, required, positive
