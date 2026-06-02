@@ -124,9 +124,7 @@ class JobService:
     cls._check_url_allowed(source_url)
     target_folder, target_filename, target_path = cls._build_target_path(
       settings.PLEX_MEDIA_ROOT,
-      payload.get('title'),
-      payload.get('season'),
-      payload.get('episode'),
+      payload.get('output_title'),
     )
     selected_streams = cls._merge_selected_streams(payload.get('selected_streams'))
     encoder_options = cls._merge_encoder_options(payload.get('encoder_options'))
@@ -196,6 +194,7 @@ class JobService:
       source_url=data['source_url'],
       subtitles_url=data.get('subtitles_url'),
       output_title=data['output_title'],
+      source_user_agent=data.get('source_user_agent'),
       selected_streams=data['selected_streams'],
       encoder_options=data['encoder_options'],
     )
@@ -210,26 +209,20 @@ class JobService:
     return value.rstrip('. ')
 
   @classmethod
-  def _build_target_path(cls, plex_root: Path, show_name: str, season: int, episode: int) -> tuple[str, str, Path]:
-    safe_show = cls._safe_name(show_name, 'show_name')
-    try:
-      season = int(season)
-      episode = int(episode)
-    except (TypeError, ValueError):
-      raise JSRError('invalid_payload', message='season and episode must be integers')
-    if season < 1 or episode < 1:
-      raise JSRError('invalid_payload', message='season and episode must be positive')
-    season_folder = f'Season {season:02d}'
-    filename = f'{safe_show} - S{season:02d}E{episode:02d}.mp4'
-    relative_folder = Path(safe_show) / season_folder
-    target_path = plex_root / relative_folder / filename
+  def _build_target_path(cls, plex_root: Path, output_title: str) -> tuple[str, str, Path]:
+    safe_filename = cls._safe_name(output_title, 'output_title')
+    if not safe_filename.lower().endswith('.mp4'):
+      safe_filename = f'{safe_filename}.mp4'
+    safe_folder = cls._safe_name(safe_filename.split('.')[0], 'output_title')
+    relative_folder = Path(safe_folder)
+    target_path = plex_root / relative_folder / safe_filename
     plex_root_resolved = plex_root.resolve()
     target_resolved = target_path.resolve()
     try:
       target_resolved.relative_to(plex_root_resolved)
     except ValueError:
       raise JSRError('invalid_payload', message='Target path is outside PLEX_MEDIA_ROOT')
-    return relative_folder.as_posix(), filename, target_resolved
+    return relative_folder.as_posix(), safe_filename, target_resolved
 
   @staticmethod
   def _check_url_allowed(url: str) -> None:
