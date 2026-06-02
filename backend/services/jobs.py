@@ -121,9 +121,6 @@ class JobService:
     subtitles_url = payload.get('subtitles_url')
     if subtitles_url:
       subtitles_url = cls._validate_url(subtitles_url, 'subtitles_url')
-    original_page_url = payload.get('original_page_url')
-    if original_page_url:
-      original_page_url = cls._validate_url(original_page_url, 'original_page_url')
     cls._check_url_allowed(source_url)
     target_folder, target_filename, target_path = cls._build_target_path(
       settings.PLEX_MEDIA_ROOT,
@@ -140,7 +137,6 @@ class JobService:
     data.update(
       source_url=source_url,
       subtitles_url=subtitles_url,
-      original_page_url=original_page_url,
       source_user_agent=source_user_agent,
       selected_streams=selected_streams,
       encoder_options=encoder_options,

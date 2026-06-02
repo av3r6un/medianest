@@ -25,7 +25,6 @@ def upgrade() -> None:
     sa.Column('uid', sa.String(length=16), nullable=False),
     sa.Column('source_url', sa.Text(), nullable=False),
     sa.Column('subtitles_url', sa.Text(), nullable=True),
-    sa.Column('original_page_url', sa.Text(), nullable=True),
     sa.Column('output_title', sa.String(length=255), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('season', sa.Integer(), nullable=False),

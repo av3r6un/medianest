@@ -26,7 +26,6 @@ class DownloadJob(Base):
   uid: Mapped[str] = mapped_column(String(16), primary_key=True)
   source_url: Mapped[str] = mapped_column(Text, nullable=False)
   subtitles_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-  original_page_url: Mapped[str | None] = mapped_column(Text, nullable=True)
   output_title: Mapped[str] = mapped_column(String(255), nullable=False)
   title: Mapped[str] = mapped_column(String(255), nullable=False)
   season: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -58,7 +57,6 @@ class DownloadJob(Base):
     self.uid = uid
     self.source_url = self._validate_required('source_url', **kwargs)
     self.subtitles_url = kwargs.get('subtitles_url')
-    self.original_page_url = kwargs.get('original_page_url')
     self.output_title = self._validate_required('output_title', **kwargs)
     self.title = self._validate_required('title', **kwargs)
     self.season = self._validate_positive_int('season', **kwargs)
@@ -110,7 +108,6 @@ class DownloadJob(Base):
       uid=self.uid,
       source_url=self.source_url,
       subtitles_url=self.subtitles_url,
-      original_page_url=self.original_page_url,
       output_title=self.output_title,
       title=self.title,
       season=self.season,
